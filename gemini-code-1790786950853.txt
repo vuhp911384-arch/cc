@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ôn Tập Trắc Nghiệm Tàu Thủy - 40 Cụm Câu Hỏi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-blue-900 text-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <i class="fa-solid font-bold text-2xl fa-ship text-blue-400"></i>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight">ÔN THI LÝ THUYẾT TÀU THỦY</h1>
+                    <p class="text-xs text-blue-200">Ngân hàng câu hỏi ôn tập tổng hợp</p>
+                </div>
+            </div>
+            <div id="quiz-stats" class="hidden flex items-center space-x-4 bg-blue-950 px-3 py-1.5 rounded-lg border border-blue-800">
+                <div class="text-xs">
+                    <span class="text-gray-400">Tiến độ:</span>
+                    <span id="progress-text" class="font-semibold text-blue-300">0/40</span>
+                </div>
+                <div class="text-xs border-l border-blue-800 pl-4">
+                    <span class="text-gray-400">Thời gian:</span>
+                    <span id="timer-text" class="font-mono font-semibold text-yellow-400">00:00</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-7xl w-full mx-auto p-4 md:p-6 flex flex-col justify-center">
+
+        <!-- Welcome & Mode Selection View -->
+        <div id="view-start" class="max-w-2xl mx-auto w-full bg-white rounded-2xl shadow-xl p-6 md:p-8 border border-slate-100">
+            <div class="text-center mb-8">
+                <div class="inline-flex p-4 rounded-full bg-blue-50 text-blue-600 mb-4">
+                    <i class="fa-solid fa-graduation-cap text-4xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-slate-800">Luyện Tập Trắc Nghiệm</h2>
+                <p class="text-slate-500 mt-2 text-sm">Hệ thống tổng hợp câu hỏi trắc nghiệm kiến thức tàu thủy, ổn định, tính chống chìm & kết cấu tàu.</p>
+            </div>
+
+            <div class="space-y-4 mb-8">
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <label class="block font-medium text-slate-700 mb-2">Số lượng câu hỏi mỗi lần làm:</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button type="button" onclick="setQuestionCount(40)" id="btn-count-40" class="btn-count py-2.5 px-4 rounded-lg font-medium border text-center transition-all bg-blue-600 text-white border-blue-600 shadow-sm">
+                            40 Câu (Chuẩn đề)
+                        </button>
+                        <button type="button" onclick="setQuestionCount(0)" id="btn-count-all" class="btn-count py-2.5 px-4 rounded-lg font-medium border text-center text-slate-700 border-slate-300 hover:bg-slate-100">
+                            Tất cả câu hỏi
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <label class="block font-medium text-slate-700 mb-2">Chế độ hiển thị kết quả:</label>
+                    <div class="space-y-2">
+                        <label class="flex items-center space-x-3 p-2 rounded-lg hover:bg-white cursor-pointer transition-colors border border-transparent hover:border-slate-200">
+                            <input type="radio" name="feedback-mode" value="instant" checked class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                            <div>
+                                <div class="text-sm font-semibold text-slate-800">Xem đáp án ngay sau mỗi câu</div>
+                                <div class="text-xs text-slate-500">Phù hợp khi đang học bài, luyện nhớ đáp án đúng/sai lập tức.</div>
+                            </div>
+                        </label>
+                        <label class="flex items-center space-x-3 p-2 rounded-lg hover:bg-white cursor-pointer transition-colors border border-transparent hover:border-slate-200">
+                            <input type="radio" name="feedback-mode" value="submit" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                            <div>
+                                <div class="text-sm font-semibold text-slate-800">Chỉ hiện kết quả khi Nộp bài</div>
+                                <div class="text-xs text-slate-500">Giống như thi thật, tổng hợp kết quả cuối bài làm.</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="startQuiz()" class="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-lg shadow-blue-500/20 transition-all flex items-center justify-center space-x-2 text-lg">
+                <span>Bắt Đầu Làm Bài</span>
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </div>
+
+        <!-- Quiz View -->
+        <div id="view-quiz" class="hidden grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
+            
+            <!-- Left Side / Question Box -->
+            <div class="lg:col-span-3 bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8 flex flex-col justify-between min-h-[500px]">
+                <div>
+                    <!-- Question Header -->
+                    <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
+                        <span id="question-chapter" class="px-3 py-1 bg-blue-50 text-blue-700 font-medium text-xs rounded-full">Chương 1</span>
+                        <span id="question-number-badge" class="text-sm font-semibold text-slate-400">Câu 1 / 40</span>
+                    </div>
+
+                    <!-- Question Content -->
+                    <div class="mb-6">
+                        <h3 id="question-text" class="text-lg md:text-xl font-semibold text-slate-800 leading-relaxed">
+                            Nội dung câu hỏi sẽ hiển thị ở đây?
+                        </h3>
+                    </div>
+
+                    <!-- Options Container -->
+                    <div id="options-container" class="space-y-3">
+                        <!-- Dynamic Options generated via JS -->
+                    </div>
+
+                    <!-- Explanation/Rationale Box (For Instant Feedback Mode) -->
+                    <div id="rationale-box" class="hidden mt-6 p-4 rounded-xl text-sm border">
+                        <!-- Dynamic explanation -->
+                    </div>
+                </div>
+
+                <!-- Footer Navigation -->
+                <div class="flex justify-between items-center mt-8 pt-4 border-t border-slate-100">
+                    <button id="btn-prev" onclick="navigateQuestion(-1)" class="px-5 py-2.5 rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-50 font-medium text-sm flex items-center space-x-2 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+                        <i class="fa-solid fa-chevron-left text-xs"></i>
+                        <span>Câu Trước</span>
+                    </button>
+
+                    <div class="flex space-x-3">
+                        <button id="btn-next" onclick="navigateQuestion(1)" class="px-5 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm flex items-center space-x-2 transition-colors shadow-sm">
+                            <span>Câu Tiếp</span>
+                            <i class="fa-solid fa-chevron-right text-xs"></i>
+                        </button>
+                        <button id="btn-finish" onclick="confirmSubmitQuiz()" class="hidden px-5 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-sm flex items-center space-x-2 transition-colors shadow-sm">
+                            <i class="fa-solid fa-check-circle"></i>
+                            <span>Nộp Bài</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side / Question Map Navigation -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
+                <h4 class="font-bold text-slate-800 text-sm mb-3 flex items-center justify-between">
+                    <span>Danh Sách Câu Hỏi</span>
+                    <span id="answered-count" class="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded">0/40 đã chọn</span>
+                </h4>
+
+                <div id="question-grid" class="grid grid-cols-5 sm:grid-cols-8 lg:grid-cols-5 gap-2 max-h-[350px] overflow-y-auto custom-scrollbar p-1">
+                    <!-- Dynamic Question buttons -->
+                </div>
+
+                <div class="mt-4 pt-4 border-t border-slate-100 space-y-2 text-xs text-slate-500">
+                    <div class="flex items-center space-x-2">
+                        <span class="w-3 h-3 rounded-full bg-slate-100 border border-slate-300"></span>
+                        <span>Chưa làm</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="w-3 h-3 rounded-full bg-blue-600"></span>
+                        <span>Đã trả lời</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+                        <span>Đúng (Chế độ xem ngay)</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="w-3 h-3 rounded-full bg-rose-500"></span>
+                        <span>Sai (Chế độ xem ngay)</span>
+                    </div>
+                </div>
+
+                <button onclick="confirmSubmitQuiz()" class="w-full mt-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium text-sm transition-colors shadow-sm flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-paper-plane"></i>
+                    <span>Nộp Bài Ngay</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Result View -->
+        <div id="view-result" class="hidden max-w-4xl mx-auto w-full bg-white rounded-2xl shadow-xl border border-slate-100 p-6 md:p-8">
+            <div class="text-center pb-6 border-b border-slate-100">
+                <div id="result-icon-bg" class="inline-flex p-4 rounded-full bg-emerald-100 text-emerald-600 mb-3">
+                    <i id="result-icon" class="fa-solid fa-trophy text-4xl"></i>
+                </div>
+                <h2 id="result-title" class="text-2xl font-bold text-slate-800">Hoàn Thành Bài Thi!</h2>
+                <p id="result-subtitle" class="text-slate-500 text-sm mt-1">Dưới đây là thống kê chi tiết kết quả lượt làm bài của bạn.</p>
+            </div>
+
+            <!-- Score Stats -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 my-6">
+                <div class="bg-slate-50 p-4 rounded-xl text-center border border-slate-100">
+                    <span class="text-xs text-slate-500 block mb-1">Điểm Số</span>
+                    <span id="stat-score" class="text-3xl font-bold text-blue-600">0/10</span>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-xl text-center border border-slate-100">
+                    <span class="text-xs text-slate-500 block mb-1">Số Câu Đúng</span>
+                    <span id="stat-correct" class="text-3xl font-bold text-emerald-600">0</span>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-xl text-center border border-slate-100">
+                    <span class="text-xs text-slate-500 block mb-1">Số Câu Sai</span>
+                    <span id="stat-wrong" class="text-3xl font-bold text-rose-600">0</span>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-xl text-center border border-slate-100">
+                    <span class="text-xs text-slate-500 block mb-1">Thời Gian</span>
+                    <span id="stat-time" class="text-3xl font-bold text-slate-700">00:00</span>
+                </div>
+            </div>
+
+            <!-- Review Questions List -->
+            <div class="mt-8">
+                <h3 class="font-bold text-slate-800 text-lg mb-4">Chi Tiết Từng Câu Hỏi</h3>
+                <div id="review-list" class="space-y-4 max-h-[450px] overflow-y-auto custom-scrollbar pr-2">
+                    <!-- Dynamic review items -->
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="mt-8 pt-6 border-t border-slate-100 flex flex-col sm:flex-row justify-center gap-4">
+                <button onclick="restartQuiz()" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-md transition-colors flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-rotate-right"></i>
+                    <span>Làm Bài Khác (40 Câu Ngẫu Nhiên)</span>
+                </button>
+                <button onclick="showStartScreen()" class="px-6 py-3 border border-slate-300 text-slate-700 hover:bg-slate-50 font-semibold rounded-xl transition-colors flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Về Trang Chủ</span>
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-3 text-center text-xs text-slate-500 mt-auto">
+        Ứng dụng Trắc Nghiệm Tàu Thủy &copy; 2026 - Phát triển dựa trên Bộ câu hỏi ôn tập
+    </footer>
+
+    <!-- Quiz Logic & Question Database -->
+    <script>
+        // Database Question Bank extracted directly from provided source material PDF
+        const QUESTION_BANK = [
+            // CHAPTER 1
+            { id: 1, chapter: "Chương 1", q: "Tàu thủy tàu là gì?", options: ["Tàu thủy là phương tiện nổi có công dụng chở hàng, chở người trong giao thông vận tải hoặc phục vụ cho các lĩnh vực khác của nền kinh tế quốc dân, quốc phòng.", "Tàu thủy là phương tiện nổi có công dụng chở hàng.", "Tàu thủy là phương tiện nổi có công dụng chở hàng trong giao thông vận tải hoặc phục vụ cho các lĩnh vực khác của nền kinh tế quốc dân, quốc phòng.", "Tàu thủy là phương tiện nổi có công dụng chở hàng, chở người trong giao thông vận tải."], correct: 0 },
+            { id: 2, chapter: "Chương 1", q: "Đội tàu ngày nay có thể chia làm mấy nhóm chính?", options: ["3", "2", "1", "4"], correct: 3 },
+            { id: 3, chapter: "Chương 1", q: "Tàu nào làm việc trên nguyên lý của định luật Archimedes?", options: ["Tàu ngầm.", "Tàu cánh ngầm.", "Tàu lướt.", "Tàu Đệm khí."], correct: 0 },
+            { id: 4, chapter: "Chương 1", q: "Tàu nào làm việc trên nguyên tắc khí động học?", options: ["Tàu Đệm khí.", "Tàu cánh ngầm.", "Tàu lướt.", "Tàu ngầm."], correct: 0 },
+            { id: 5, chapter: "Chương 1", q: "Tàu nào làm việc trên nguyên tắc thủy động lực?", options: ["Tàu cánh ngầm.", "Tàu Đệm khí.", "Tàu bọt khí.", "Tàu ngầm."], correct: 0 },
+            { id: 6, chapter: "Chương 1", q: "Tàu kéo kiêm công tác cứu hỏa được dùng rất phổ biến trong đội tàu kéo biển thuộc nhóm tàu nào?", options: ["Tàu chuyên ngành", "Tàu hàng khô.", "Tàu dịch vụ.", "Tàu phục vụ khai thác dầu khí trên thềm lục địa."], correct: 2 },
+            { id: 7, chapter: "Chương 1", q: "Tàu Khoan thuộc nhóm tàu nào?", options: ["Tàu phục vụ khai thác dầu khí trên thềm lục địa.", "Tàu hàng khô.", "Tàu chuyên ngành.", "Tàu dịch vụ."], correct: 0 },
+            { id: 8, chapter: "Chương 1", q: "Tàu chạy trong vùng biển kín với chiều cao sóng h3% = 7 m thuộc vùng biển?", options: ["Hạn chế cấp I.", "Không hạn chế.", "Hạn chế cấp II.", "Hạn chế cấp III."], correct: 0 },
+            { id: 9, chapter: "Chương 1", q: "Tàu chạy tuyến Việt Nam đi các nước Châu Âu thuộc vùng biển?", options: ["Không hạn chế.", "Hạn chế cấp I.", "Hạn chế cấp II.", "Hạn chế cấp III."], correct: 0 },
+            { id: 10, chapter: "Chương 1", q: "Tàu chạy khu vực các cửa sông đổ ra biển thuộc nhóm tàu nào?", options: ["Sông SI.", "Hạn chế cấp I.", "Hạn chế cấp II.", "Không hạn chế."], correct: 0 },
+            { id: 11, chapter: "Chương 1", q: "Kiểu thiết bị động lực nào được sử dụng phổ biến trên các tàu hiện nay?", options: ["Tàu chạy bằng động cơ đốt trong.", "Tàu chạy bằng động cơ điện.", "Tàu chạy bằng tua bin hơi nước.", "Tàu chạy bằng sức gió (tàu buồm)."], correct: 0 },
+            { id: 12, chapter: "Chương 1", q: "Tàu có mạn khô thấp, boong liên tục trên cùng là boong vách (dùng cho tàu chở hàng nặng) gọi là?", options: ["Tàu boong hở.", "Tàu boong kín.", "Tàu boong vách.", "Tàu boong thời tiết."], correct: 2 },
+            { id: 13, chapter: "Chương 1", q: "Tàu cánh ngầm thường có thân vỏ làm bằng vật liệu gì?", options: ["Nhôm", "Vật liệu composite", "Thép carbon thấp", "Thép độ bền cao"], correct: 0 },
+            { id: 14, chapter: "Chương 1", q: "Trong hệ tọa độ OXYZ gắn với thân tàu, trục OX có chiều dương hướng về?", options: ["Mũi tàu.", "Mạn phải.", "Lên trên.", "Đuôi tàu."], correct: 0 },
+            { id: 15, chapter: "Chương 1", q: "Trong hệ tọa độ OXYZ gắn với thân tàu, trục OY có chiều dương hướng về?", options: ["Mạn phải.", "Mũi tàu.", "Lên trên.", "Đuôi tàu."], correct: 0 },
+            { id: 16, chapter: "Chương 1", q: "Trong hệ tọa độ OXYZ gắn với thân tàu, trục OZ có chiều dương hướng về?", options: ["Lên trên.", "Mạn phải.", "Mũi tàu.", "Đuôi tàu."], correct: 0 },
+            { id: 17, chapter: "Chương 1", q: "Người ta nói tàu có chiều dài 182,5m theo em đó là chiều dài nào dưới đây?", options: ["Chiều dài toàn bộ tàu LOA.", "Chiều dài đường nước kết cấu LKW", "Chiều dài thiết kế Ltk", "Chiều dài giữa hai trụ Lpp."], correct: 0 },
+            { id: 18, chapter: "Chương 1", q: "Chiều dài tàu kí hiệu?", options: ["L", "B", "D", "d"], correct: 0 },
+            { id: 19, chapter: "Chương 1", q: "Chiều rộng tàu kí hiệu?", options: ["B", "L", "D", "d"], correct: 0 },
+            { id: 20, chapter: "Chương 1", q: "Chiều cao mạn tàu kí hiệu?", options: ["D", "B", "L", "d"], correct: 0 },
+            { id: 21, chapter: "Chương 1", q: "Chiều chìm tàu (mớn nước) kí hiệu?", options: ["d", "B", "D", "L"], correct: 0 },
+            { id: 22, chapter: "Chương 1", q: "Hệ số đầy (hệ số béo) thể tích kí hiệu?", options: ["CB", "CW", "CM", "CP"], correct: 0 },
+            { id: 23, chapter: "Chương 1", q: "Hệ số đầy (hệ số béo) đường nước kí hiệu?", options: ["CW", "CB", "CM", "CP"], correct: 0 },
+            { id: 24, chapter: "Chương 1", q: "Hệ số đầy (hệ số béo) mặt sườn giữa kí hiệu?", options: ["CM", "CW", "CB", "CP"], correct: 0 },
+            { id: 25, chapter: "Chương 1", q: "Giao tuyến giữa vỏ bao tàu với mặt phẳng song song với mặt phẳng dọc tâm cho ta giao tuyến có tên gọi là?", options: ["Đường cắt dọc.", "Đường sườn.", "Đường nước.", "Đường giao tuyến."], correct: 0 },
+            { id: 26, chapter: "Chương 1", q: "Giao tuyến giữa vỏ bao tàu với mặt phẳng song song với mặt phẳng sườn giữa cho ta giao tuyến có tên gọi là?", options: ["Đường sườn.", "Đường cắt dọc.", "Đường nước.", "Đường giao tuyến."], correct: 0 },
+            { id: 27, chapter: "Chương 1", q: "Giao tuyến giữa vỏ bao tàu với mặt phẳng song song với mặt phẳng cơ bản cho ta giao tuyến có tên gọi là?", options: ["Đường nước.", "Đường sườn.", "Đường cắt dọc.", "Đường giao tuyến."], correct: 0 },
+            { id: 28, chapter: "Chương 1", q: "Lượng chiếm nước của tàu được kí hiệu là?", options: ["Δ", "V", "W", "P"], correct: 0 },
+            { id: 29, chapter: "Chương 1", q: "Trọng lượng của tàu được kí hiệu là?", options: ["W", "∇", "A", "P"], correct: 0 },
+            { id: 30, chapter: "Chương 1", q: "Lượng chiếm nước của tàu được tính thông qua các thông số kích thước tàu theo công thức nào sau đây?", options: ["Δ = γ . Lw . Bw . d . CB", "Δ = γ . Lw . Bw . d . CW", "Δ = γ . Lw . Bw . d . CM", "Δ = γ . Lw . Bw . d . CP"], correct: 0 },
+            { id: 31, chapter: "Chương 1", q: "Tàu chạy trong vùng biển hở với chiều cao sóng h3% = 5,5 m thuộc vùng biển?", options: ["Hạn chế cấp II.", "Không hạn chế.", "Hạn chế cấp I.", "Hạn chế cấp III."], correct: 0 },
+            { id: 32, chapter: "Chương 1", q: "Tàu chạy trong vùng biển hở với chiều cao sóng h3% = 8,6 m thuộc vùng biển?", options: ["Không hạn chế.", "Hạn chế cấp II.", "Hạn chế cấp I.", "Hạn chế cấp III."], correct: 0 },
+            { id: 33, chapter: "Chương 1", q: "Tàu chạy trong vùng nước có chiều cao sóng h3% = 2,4 m thuộc vùng?", options: ["Pha sông biển.", "Hạn chế cấp II.", "Hạn chế cấp I.", "Hạn chế cấp III."], correct: 0 },
+            { id: 34, chapter: "Chương 1", q: "Tàu chạy trong vùng nước có chiều cao sóng h3% = 1,8 m thuộc vùng?", options: ["Sông cấp SI.", "Sông cấp SII.", "Pha sông biển", "Hạn chế cấp III."], correct: 0 },
+            { id: 35, chapter: "Chương 1", q: "Tàu chạy trong vùng nước có chiều cao sóng h3% = 1,0 m thuộc vùng?", options: ["Sông cấp SII.", "Sông cấp SI.", "Pha sông biển", "Hạn chế cấp III."], correct: 0 },
+            { id: 36, chapter: "Chương 1", q: "Thường kết cấu 2 boong, boong liên tục trên cùng là boong kín nước, boong dưới cùng là boong vách, mạn khô cao (dùng cho tàu chở hàng nhẹ) gọi là?", options: ["Tàu boong kín.", "Tàu boong hở.", "Tàu boong vách.", "Tàu boong thời tiết."], correct: 0 },
+            { id: 37, chapter: "Chương 1", q: "Thể tích ngâm nước của tàu được kí hiệu là?", options: ["V", "W", "∇", "P"], correct: 2 },
+            { id: 38, chapter: "Chương 1", q: "Khoảng cách đo từ điểm xa nhất trước mũi tàu đến điểm xa nhất sau lái là chiều dài?", options: ["Chiều dài lớn nhất: LOA.", "Chiều dài giữa 2 trụ: Lpp.", "Chiều dài thiết kế: LTK.", "Chiều dài phần chìm lớn nhất: Los."], correct: 0 },
+            { id: 39, chapter: "Chương 1", q: "Khoảng cách đo từ giao điểm tiếp nước của mép trước sống mũi tàu đến giao điểm tiếp nước của mép sau sống lái với đường nước thiết kế kí hiệu là?", options: ["Chiều dài đường nước thiết kế (đường nước kết cấu): LKW.", "Chiều dài giữa 2 trụ: Lpp.", "Chiều dài thiết kế: LTK.", "Chiều dài phần chìm lớn nhất: Los."], correct: 0 },
+            { id: 40, chapter: "Chương 1", q: "Khoảng cách đo trên mặt đường nước, tính từ trụ lái đến trụ mũi là chiều dài?", options: ["Chiều dài giữa 2 trụ: Lpp.", "Chiều dài đường nước thiết kế (đường nước kết cấu): Lkw", "Chiều dài thiết kế: LTK.", "Chiều dài phần chìm lớn nhất: Los."], correct: 0 },
+
+            // CHAPTER 2
+            { id: 41, chapter: "Chương 2", q: "Trọng lượng tàu bao gồm?", options: ["Wtk + DWT", "Δ + DWT", "Wtk + Δ", "Wtk + V"], correct: 0 },
+            { id: 42, chapter: "Chương 2", q: "Khi trọng tâm G và tâm nổi B của tàu nằm trên 1 đường thẳng thì tàu ở trạng thái nào?", options: ["Tàu cân bằng.", "Tàu chui.", "Tàu nghiêng.", "Tàu ở tư thế bất kì."], correct: 0 },
+            { id: 43, chapter: "Chương 2", q: "Khi người ta nói tàu có trọng tải 10.000 tấn, đó là đại lượng nào trong các đại lượng sau?", options: ["DWT", "W", "F", "A"], correct: 0 },
+            { id: 44, chapter: "Chương 2", q: "Để một con tàu nổi trên mặt nước ta cần những điều kiện gì?", options: ["W = F", "N.GZ = F.GZ", "W = F; GZ = F.GZ", "Δ = F"], correct: 0 },
+            { id: 45, chapter: "Chương 2", q: "Đồ thị Bonjean là đồ thị biểu diễn sự biến thiên của diện tích mặt sườn và mômen của diện tích mặt sườn theo?", options: ["Chiều dài tàu.", "Chiều rộng tàu.", "Chiều cao tàu.", "Theo cả ba kích thước trên."], correct: 0 },
+            { id: 46, chapter: "Chương 2", q: "Trong Đồ thị đường cong tính nổi không biểu diễn đại lượng?", options: ["LCG", "LCF", "LCB", "KB"], correct: 0 },
+            { id: 47, chapter: "Chương 2", q: "Khi tính cân bằng tàu chở hàng khô ta cần tính tối thiểu mấy trạng thái tải trọng?", options: ["4", "2", "3", "1"], correct: 0 },
+            { id: 48, chapter: "Chương 2", q: "Mục đích của việc tính cân bằng tàu là để tìm ra các đại lượng?", options: ["W, LCG, KG", "W", "LCG", "KG"], correct: 0 },
+            { id: 49, chapter: "Chương 2", q: "Hoành độ trọng tâm tàu kí hiệu là?", options: ["LCG", "LCF", "LCB", "KB"], correct: 0 },
+            { id: 50, chapter: "Chương 2", q: "Hoành độ tâm nổi kí hiệu là?", options: ["LCB", "LCF", "LCG", "KB"], correct: 0 },
+            { id: 51, chapter: "Chương 2", q: "Hoành độ tâm diện tích đường nước kí hiệu là?", options: ["LCF", "LCG", "LCB", "KB"], correct: 0 },
+            { id: 52, chapter: "Chương 2", q: "Cao độ trọng tâm tàu kí hiệu là?", options: ["KG", "KF", "LCB", "KB"], correct: 0 },
+            { id: 53, chapter: "Chương 2", q: "Cao độ tâm nổi kí hiệu là?", options: ["KB", "KF", "LCB", "KG"], correct: 0 },
+            { id: 54, chapter: "Chương 2", q: "Cao độ tâm diện tích đường nước kí hiệu là?", options: ["KF", "KG", "LCB", "KB"], correct: 0 },
+            { id: 55, chapter: "Chương 2", q: "Dự trữ tính nổi yêu cầu cao nhất đối với loại tàu nào?", options: ["Tàu khách", "Tàu dầu", "Tàu dịch vụ", "Tàu hàng khô"], correct: 0 },
+            { id: 56, chapter: "Chương 2", q: "Căn cứ vào đâu người ta biết tên cơ quan đăng kiểm tàu?", options: ["Dấu chở hàng", "Dấu đường boong", "Dấu tải trọng", "Dấu hiệu chở hàng"], correct: 0 },
+            { id: 57, chapter: "Chương 2", q: "Căn cứ vào đâu người ta biết mớn nước tàu tại từng vùng và từng mùa khác nhau?", options: ["Dấu chở hàng", "Dấu đường boong", "Dấu tải trọng", "Dấu hiệu chở hàng"], correct: 0 },
+            { id: 58, chapter: "Chương 2", q: "Đường nước khi tàu ở trạng thái toàn tải ứng với đường nước tải trọng nào sau đây?", options: ["Đường tải trọng mùa hè", "Đường tải trọng mùa đông", "Đường tải trọng vùng nước", "Đường tải trọng vùng nhiệt"], correct: 0 },
+            { id: 59, chapter: "Chương 2", q: "Dung tích GT thường được dùng để?", options: ["Tính phí cảng vụ", "Tính phí đăng kiểm", "Tính Phí hoa tiêu", "Thuê chỗ neo buộc tàu"], correct: 0 },
+            { id: 60, chapter: "Chương 2", q: "Dung tích NT thường được dùng để?", options: ["Tính phí qua kênh đào / Thuế lệ phí hàng hải", "Tính phí đăng kiểm", "Tính phí bảo hiểm", "Phân loại tàu thuyền lớn nhỏ"], correct: 0 },
+
+            // CHAPTER 3
+            { id: 61, chapter: "Chương 3", q: "Một con tàu thế nào được gọi là ổn định?", options: ["Một con tàu được gọi là ổn định khi nó có khả năng chống lại các tác động của ngoại lực đã đẩy tàu khỏi vị trí cân bằng ban đầu để đưa tàu trở lại vị trí cân bằng này, khi ngoại lực không còn tác động nữa.", "Một con tàu được gọi là ổn định khi nó có khả năng chống lại các tác động của ngoại lực.", "Một con tàu được gọi là ổn định khi nó có khả năng chống lại các tác động của ngoại lực để đưa tàu trở lại vị trí cân bằng.", "Một con tàu được gọi là ổn định khi nó có khả năng chống lại các tác động của ngoại lực đã đẩy tàu khỏi vị trí cân bằng."], correct: 0 },
+            { id: 62, chapter: "Chương 3", q: "Ổn định ngang là?", options: ["Khi tàu bị nghiêng quanh trục dọc đi qua trục OX.", "Khi tàu bị nghiêng quanh trục ngang đi qua trục OY.", "Khi tàu bị nghiêng quanh trục dọc đi qua tâm diện tích đường nước.", "Khi tàu bị nghiêng quanh trục ngang đi qua tâm diện tích đường nước."], correct: 0 },
+            { id: 63, chapter: "Chương 3", q: "Ổn định dọc là?", options: ["Khi tàu bị nghiêng quanh trục ngang đi qua trục OY.", "Khi tàu bị nghiêng quanh trục dọc đi qua trục OX.", "Khi tàu bị nghiêng quanh trục dọc đi qua tâm diện tích đường nước.", "Khi tàu bị nghiêng quanh trục ngang đi qua tâm diện tích đường nước."], correct: 0 },
+            { id: 64, chapter: "Chương 3", q: "Cánh tay đòn ổn định tĩnh kí hiệu là?", options: ["GZ", "GM", "BM", "KB"], correct: 0 },
+            { id: 65, chapter: "Chương 3", q: "Chiều cao tâm nghiêng của tàu kí hiệu là?", options: ["GM", "BM", "GML", "BML"], correct: 0 },
+            { id: 66, chapter: "Chương 3", q: "Chiều cao tâm chúi của tàu kí hiệu là?", options: ["GML", "GM", "BM", "BML"], correct: 0 },
+            { id: 67, chapter: "Chương 3", q: "Bán kính tâm nghiêng của tàu kí hiệu là?", options: ["BM", "GM", "GML", "BML"], correct: 0 },
+            { id: 68, chapter: "Chương 3", q: "Bán kính tâm chúi của tàu kí hiệu là?", options: ["BML", "GM", "BM", "GML"], correct: 0 },
+            { id: 69, chapter: "Chương 3", q: "Khi trọng vật được dịch chuyển từ vị trí này tới vị trí khác trên tàu thì đại lượng nào không thay đổi?", options: ["Trọng lượng tàu.", "Góc chúi.", "Tâm nổi.", "Góc nghiêng."], correct: 0 },
+            { id: 70, chapter: "Chương 3", q: "Khi tàu nghiêng thì đại lượng nào không thay đổi?", options: ["Trọng tâm.", "Hình dáng phần chìm.", "Tâm nổi.", "Góc nghiêng."], correct: 0 },
+            { id: 71, chapter: "Chương 3", q: "Mômen nghiêng trên 1 độ (MĐV) được hiểu là?", options: ["Mômen hồi phục tác dụng làm tàu nghiêng 1 độ.", "Mômen ngoại lực tác dụng làm tàu nghiêng 1 độ.", "Ngoại lực tác dụng làm tàu nghiêng 1 độ.", "Lực hồi phục tác dụng làm tàu nghiêng 1 độ."], correct: 0 },
+            { id: 72, chapter: "Chương 3", q: "Mômen chúi trên 1 cm chiều chìm (MTRIM) được hiểu là?", options: ["Mômen ngoại lực tác dụng làm tàu nghiêng dọc thêm 1 cm.", "Mômen ngoại lực tác dụng làm tàu nghiêng ngang thêm 1 m.", "Mômen ngoại lực tác dụng làm tàu nghiêng dọc thêm 1 m.", "Mômen ngoại lực tác dụng làm tàu nghiêng ngang 1 cm."], correct: 0 },
+            { id: 73, chapter: "Chương 3", q: "Khi nhận hoặc bốc một khối hàng khỏi tàu thì đại lượng nào sau đây thay đổi?", options: ["Chiều chìm.", "Chiều dài tàu.", "Chiều rộng tàu.", "Chiều cao tàu."], correct: 0 },
+            { id: 74, chapter: "Chương 3", q: "Mặt thoáng hàng lỏng có ảnh hưởng thế nào tới ổn định?", options: ["Ảnh hưởng xấu tới ổn định tàu.", "Ảnh hưởng tốt tới ổn định tàu.", "Không ảnh hưởng tới ổn định tàu.", "Ảnh hưởng không đáng kể tới ổn định tàu."], correct: 0 },
+            { id: 75, chapter: "Chương 3", q: "Tàu chở dầu cùng kích thước, trong các trường hợp sau thì trường hợp nào tốt cho ổn định tàu hơn?", options: ["Có 3 vách dọc.", "Không có vách dọc.", "Có 1 vách dọc.", "Có 2 vách dọc."], correct: 0 },
+            { id: 76, chapter: "Chương 3", q: "Ổn định tàu khi nghiêng góc nhỏ là khi tàu nghiêng một góc?", options: ["< 15°", "< 20°", "< 25°", "< 4°"], correct: 0 },
+            { id: 77, chapter: "Chương 3", q: "Ổn định tàu khi chúi góc nhỏ là khi tàu chúi một góc?", options: ["< 4°", "< 15°", "< 20°", "< 25°"], correct: 0 },
+            { id: 78, chapter: "Chương 3", q: "Với tàu chở khách, trường hợp nào sẽ khiến hành khách hoảng sợ?", options: ["Tàu nghiêng một góc ≥ 10 độ.", "Tàu nghiêng một góc ≥ 12 độ.", "Tàu nghiêng một góc ≤ 10 độ.", "Tàu nghiêng một góc ≤ 12 độ."], correct: 0 },
+            { id: 79, chapter: "Chương 3", q: "Mômen hồi phục của tàu biến thiên theo?", options: ["Góc nghiêng ngang.", "Mômen gây nghiêng.", "Chiều dài tàu.", "Chiều rộng tàu."], correct: 0 },
+            { id: 80, chapter: "Chương 3", q: "Ổn định tàu khi nghiêng góc lớn là khi tàu nghiêng một góc?", options: [">= 15°", ">= 35°", ">= 25°", ">= 20°"], correct: 0 },
+
+            // CHAPTER 4
+            { id: 81, chapter: "Chương 4", q: "Tính chống chìm là gì?", options: ["Tính chống chìm của tàu thủy được hiểu là khả năng giữ được tính nổi và ổn định trong trường hợp bị đắm một hoặc một số khoang.", "Tính chống chìm của tàu thủy được hiểu là khả năng giữ được ổn định của tàu.", "Tính chống chìm của tàu thủy được hiểu là khả năng giữ được tính nổi khi chìm.", "Tính chống chìm của tàu thủy được hiểu là khả năng không bao giờ chìm."], correct: 0 },
+            { id: 82, chapter: "Chương 4", q: "Theo phương pháp tổn thất sức nổi, khi tàu bị đắm khoang thì đại lượng nào không thay đổi?", options: ["Trọng lượng tàu W.", "Lực nổi F.", "Góc nghiêng.", "Góc chúi."], correct: 0 },
+            { id: 83, chapter: "Chương 4", q: "Yêu cầu ổn định đối với tàu bị thủng theo công ước 1960, chiều cao tâm nghiêng ban đầu của tàu ở giai đoạn ngập nước cuối cùng có tư thế không nghiêng không nhỏ hơn?", options: ["0,05m.", "0,02m.", "0,03m.", "0,04m."], correct: 0 },
+            { id: 84, chapter: "Chương 4", q: "Hệ số đắm khoang với khoang trống bằng bao nhiêu?", options: ["0,95", "0,85", "0,9", "0"], correct: 0 },
+            { id: 85, chapter: "Chương 4", q: "Boong vách là gì?", options: ["Boong cao nhất mà các vách ngang kín nước kéo tới theo suốt chiều dài tàu.", "Boong cao nhất mà các vách ngang kéo tới theo suốt chiều dài tàu.", "Boong thấp nhất mà các vách ngang kéo tới theo suốt chiều dài tàu.", "Boong thấp nhất mà các vách ngang kín nước kéo tới."], correct: 0 },
+            { id: 86, chapter: "Chương 4", q: "Đường chìm tới hạn đường kẻ thấp hơn mặt trên của boong vách đo ở mạn ít nhất?", options: ["76mm", "74mm", "72mm", "70mm"], correct: 0 },
+            { id: 87, chapter: "Chương 4", q: "Tàu có hệ số F ≤ 0,33 có khả năng chịu được tình trạng đắm mấy khoang?", options: ["Ba khoang.", "Một khoang.", "Hai khoang.", "Bốn khoang."], correct: 0 },
+            { id: 88, chapter: "Chương 4", q: "Tàu có hệ số 0.33 < F ≤ 0.5 có khả năng chịu được tình trạng đắm mấy khoang?", options: ["Hai khoang.", "Một khoang.", "Ba khoang.", "Bốn khoang."], correct: 0 },
+            { id: 89, chapter: "Chương 4", q: "Tàu có hệ số F > 0.5 có khả năng chịu được tình trạng đắm mấy khoang?", options: ["Một khoang.", "Hai khoang.", "Ba khoang.", "Bốn khoang."], correct: 0 },
+            { id: 90, chapter: "Chương 4", q: "Hệ số đắm khoang với khoang chứa đầy hàng bằng bao nhiêu?", options: ["0,60 đến 0,85 (Trung bình 0,85)", "0", "0,9", "0,95"], correct: 0 },
+
+            // CHAPTER 5 - 8 (Keys default to A per PDF reference)
+            { id: 91, chapter: "Chương 5", q: "Với các tàu chạy chậm sức cản ma sát chiếm bao nhiêu % sức cản toàn bộ?", options: ["80% đến 85%", "50% đến 55%", "60% đến 65%", "70% đến 75%"], correct: 0 },
+            { id: 92, chapter: "Chương 5", q: "Với các tàu chạy nhanh sức cản ma sát chiếm bao nhiêu % sức cản toàn bộ?", options: ["50%", "80%", "60%", "70%"], correct: 0 },
+            { id: 93, chapter: "Chương 5", q: "Xét về nguyên nhân xuất hiện dòng chảy xung quanh tàu, Sức cản vỏ tàu bao gồm các thành phần?", options: ["Sức cản ma sát, Sức cản sóng, Sức cản do xoáy, Sức cản dư", "Sức cản ma sát, Sức cản sóng, Sức cản do xoáy, Sức cản không khí", "Sức cản ma sát, Sức cản sóng, Sức cản do xoáy, Sức cản hình dáng", "Sức cản ma sát, Sức cản sóng, Sức cản do xoáy, Sức cản áp suất"], correct: 0 },
+            { id: 94, chapter: "Chương 5", q: "Sức cản xoáy phụ thuộc nhiều vào?", options: ["Hình dạng phần thân tàu nằm trong nước.", "Hình dáng tàu trên mặt nước", "Hình dáng thân tàu", "Kích thước tàu"], correct: 0 },
+            { id: 95, chapter: "Chương 5", q: "Thiết bị đẩy tàu thủy nào thường được sử dung trên các tàu vận tải đi biển?", options: ["Chân vịt", "Đạo lưu", "Thiết bị đẩy cycloid", "Máy đẩy dạng phụt nước"], correct: 0 },
+            { id: 96, chapter: "Chương 5", q: "Thiết bị đẩy tàu thủy nào thường được sử dung trên các tàu kéo?", options: ["Đạo lưu", "Chân vịt", "Thiết bị đẩy cycloid", "Máy đẩy dạng phụt nước"], correct: 0 },
+            { id: 97, chapter: "Chương 6", q: "Chuyển động tuần hoàn tịnh tiến là chuyển động?", options: ["Dọc trục OX.", "Dọc trục OY", "Dọc trục OZ", "Quay quanh trục OX"], correct: 0 },
+            { id: 98, chapter: "Chương 6", q: "Lắc đứng là chuyển động?", options: ["Dọc trục OZ.", "Dọc trục OX", "Dọc trục OY", "Quay quanh trục OX"], correct: 0 },
+            { id: 99, chapter: "Chương 6", q: "Lắc ngang là chuyển động?", options: ["Quay quanh trục OX", "Dọc trục OX", "Dọc trục OY", "Quay quanh trục OY"], correct: 0 },
+            { id: 100, chapter: "Chương 6", q: "Biện pháp giảm lắc được sử dụng phổ biến trên tàu là?", options: ["Vây giảm lắc (ki hông)", "Con quay giảm lắc", "Bánh lái hông", "Hệ thống thùng chủ động"], correct: 0 },
+            { id: 101, chapter: "Chương 7", q: "Tính ăn lái?", options: ["Là khả năng tàu giữ nguyên hoặc thay đổi hướng đi theo ý muốn người điều khiển", "Là khả năng tàu giữ nguyên hướng đi theo ý muốn người điều khiển", "Là khả năng tàu thay đổi hướng đi theo ý muốn người điều khiển", "Là tàu thay đổi hướng đi theo một hướng bất kì với thời gian quay trở là nhỏ nhất"], correct: 0 },
+            { id: 102, chapter: "Chương 7", q: "Tính ổn định hướng?", options: ["Là khả năng tàu giữ được hướng chuyển động thẳng đã định", "Là khả năng tàu thay đổi hướng đi theo một hướng bất kì", "Là khả năng tàu thay đổi hướng đi theo ý muốn người điều khiển", "Là khả năng tàu giữ được các tính năng hàng hải"], correct: 0 },
+            { id: 103, chapter: "Chương 7", q: "Loại tàu nào sau đây ưu tiên tính ổn định hướng?", options: ["Tàu vận tải biển", "Tàu kéo", "Tàu đánh cá", "Tàu sông"], correct: 0 },
+            { id: 104, chapter: "Chương 7", q: "Loại tàu nào sau đây ưu tiên tính quay trở?", options: ["Tàu kéo", "Tàu khách chạy biển", "Tàu viễn dương", "Tàu vận tải biển"], correct: 0 },
+            { id: 105, chapter: "Chương 8", q: "Vỏ bao thân tàu được chia thành mấy phần riêng biệt?", options: ["2 phần riêng biệt", "3 phần riêng biệt", "4 phần riêng biệt", "1 phần riêng biệt"], correct: 0 },
+            { id: 106, chapter: "Chương 8", q: "Kết cấu phần thân chính được cấu thành bởi?", options: ["Dàn đáy, dàn mạn, dàn boong và dàn vách, chúng liên kết vững chắc với nhau bằng các mối ghép kín nước", "Dàn mạn, dàn boong và dàn vách", "Dàn đáy, dàn mạn, dàn boong", "Dàn đáy, dàn mạn, dàn boong, dàn vách và tôn vỏ bao"], correct: 0 },
+            { id: 107, chapter: "Chương 8", q: "Khoảng cách thế nào gọi là khoảng sườn thực?", options: ["Giữa hai khung sườn kề nhau", "Giữa một khung sườn kề nhau", "Giữa ba khung sườn kề nhau", "Giữa bốn khung sườn kề nhau"], correct: 0 },
+            { id: 108, chapter: "Chương 8", q: "Tàu được chia thành nhiều khoang theo chiều dài nhờ?", options: ["Các vách ngang", "Các vách dọc", "Các vách liên kết", "Các vách chống va"], correct: 0 },
+            { id: 109, chapter: "Chương 8", q: "Vách ngang là?", options: ["Vách đặt theo hướng thẳng đứng, song song với mặt phẳng sườn giữa", "Vách đặt theo hướng thẳng đứng, song song với mặt phẳng dọc tâm", "Vách đặt theo hướng thẳng đứng, song song với mặt phẳng đối xứng", "Vách đặt theo hướng thẳng đứng, song song với mặt phẳng cơ bản"], correct: 0 },
+            { id: 110, chapter: "Chương 8", q: "Các tàu có trung và cỡ lớn thường sử dụng hệ thống dầm cơ cấu nào để gia cường cho tàu?", options: ["Hệ thống dầm cơ hỗn hợp (ngang, dọc)", "Hệ thống dầm cơ cấu dọc", "Hệ thống dầm cơ cấu ngang", "Hệ thống dầm cơ liên hợp"], correct: 0 },
+            { id: 111, chapter: "Chương 8", q: "Các tàu nhỏ thường sử dụng hệ thống dầm cơ cấu nào để gia cường cho tàu?", options: ["Hệ thống dầm cơ cấu ngang", "Hệ thống dầm cơ cấu dọc", "Hệ thống dầm cơ liên hợp", "Hệ thống dầm cơ hỗn hợp (ngang, dọc)"], correct: 0 },
+            { id: 112, chapter: "Chương 8", q: "Cơ cấu kích thước lớn được gia cường cho dàn boong, chạy từ lái tới mũi gọi là?", options: ["Sống dọc boong", "Xà ngang boong khỏe", "Xà dọc boong", "Xà ngang boong thường"], correct: 0 },
+            { id: 113, chapter: "Chương 8", q: "Dàn boong kết cấu theo hệ thống ngang thì cơ cấu thường gia cường cho dàn boong có tên gọi là?", options: ["Xà ngang boong", "Sống dọc boong", "Sống phụ boong", "Xà dọc boong"], correct: 0 },
+            { id: 114, chapter: "Chương 8", q: "Dàn đáy kết cấu theo hệ thống ngang thì cơ cấu thường gia cường cho dàn đáy có tên gọi là?", options: ["Đà ngang đáy", "Sống chính đáy", "Sống phụ đáy", "Đà ngang khỏe"], correct: 0 },
+            { id: 115, chapter: "Chương 8", q: "Phân chia các khoang trên tàu thành các khoang kín nước là chức năng của?", options: ["Dàn vách", "Dàn mạn", "Dàn boong", "Dàn đáy"], correct: 0 },
+            { id: 116, chapter: "Chương 8", q: "Tàu nào thường có kết cấu dàn vách sóng?", options: ["Tàu chở dầu", "Tàu chở khách", "Tàu chở hàng khô", "Tàu kéo"], correct: 0 },
+            { id: 117, chapter: "Chương 8", q: "Đảm bảo tính kín dầu, kín nước, chống hắt nước là chức năng của?", options: ["Dàn boong", "Dàn đáy", "Dàn vách", "Dàn mạn"], correct: 0 },
+            { id: 118, chapter: "Chương 8", q: "Khoảng cách giữa các sườn vùng mút mũi và mút đuôi không được lớn hơn vùng khoang hàng bao nhiêu mm?", options: ["610 mm", "600 mm", "510 mm", "500 mm"], correct: 0 },
+            { id: 119, chapter: "Chương 8", q: "Tàu nào sau đây khoang máy đặt ở vùng đuôi tàu?", options: ["Tàu chở dầu", "Tàu khách", "Tàu kéo", "Tàu huấn luyện"], correct: 0 },
+            { id: 120, chapter: "Chương 8", q: "Một trong các điều kiện cần để thượng tầng tham gia vào uốn chung thân tàu là chiều dài của thượng tầng phải thỏa mãn?", options: [">= 15%L", ">= 10%L", ">= 5%L", ">= 20%L"], correct: 0 }
+        ];
+
+        // App State
+        let currentQuestions = [];
+        let userAnswers = {};
+        let currentQuestionIndex = 0;
+        let selectedCount = 40;
+        let feedbackMode = 'instant'; // 'instant' or 'submit'
+        let timerInterval = null;
+        let secondsElapsed = 0;
+
+        // Dom Elements
+        const viewStart = document.getElementById('view-start');
+        const viewQuiz = document.getElementById('view-quiz');
+        const viewResult = document.getElementById('view-result');
+        const quizStats = document.getElementById('quiz-stats');
+
+        function setQuestionCount(count) {
+            selectedCount = count;
+            document.querySelectorAll('.btn-count').forEach(btn => {
+                btn.classList.remove('bg-blue-600', 'text-white', 'border-blue-600', 'shadow-sm');
+                btn.classList.add('text-slate-700', 'border-slate-300');
+            });
+
+            if (count === 40) {
+                document.getElementById('btn-count-40').classList.add('bg-blue-600', 'text-white', 'border-blue-600', 'shadow-sm');
+                document.getElementById('btn-count-40').classList.remove('text-slate-700', 'border-slate-300');
+            } else {
+                document.getElementById('btn-count-all').classList.add('bg-blue-600', 'text-white', 'border-blue-600', 'shadow-sm');
+                document.getElementById('btn-count-all').classList.remove('text-slate-700', 'border-slate-300');
+            }
+        }
+
+        function startQuiz() {
+            // Get selected feedback mode
+            const modeInput = document.querySelector('input[name="feedback-mode"]:checked');
+            feedbackMode = modeInput ? modeInput.value : 'instant';
+
+            // Select & Shuffle questions
+            let shuffled = [...QUESTION_BANK].sort(() => 0.5 - Math.random());
+            if (selectedCount > 0 && selectedCount < shuffled.length) {
+                currentQuestions = shuffled.slice(0, selectedCount);
+            } else {
+                currentQuestions = shuffled;
+            }
+
+            userAnswers = {};
+            currentQuestionIndex = 0;
+            secondsElapsed = 0;
+
+            // Update UI Views
+            viewStart.classList.add('hidden');
+            viewResult.classList.add('hidden');
+            viewQuiz.classList.remove('hidden');
+            quizStats.classList.remove('hidden');
+
+            startTimer();
+            renderQuestionGrid();
+            loadQuestion(0);
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                secondsElapsed++;
+                const mins = Math.floor(secondsElapsed / 60).toString().padStart(2, '0');
+                const secs = (secondsElapsed % 60).toString().padStart(2, '0');
+                document.getElementById('timer-text').innerText = `${mins}:${secs}`;
+            }, 1000);
+        }
+
+        function renderQuestionGrid() {
+            const grid = document.getElementById('question-grid');
+            grid.innerHTML = '';
+
+            currentQuestions.forEach((q, idx) => {
+                const btn = document.createElement('button');
+                btn.id = `grid-btn-${idx}`;
+                btn.className = `w-8 h-8 rounded-lg text-xs font-semibold flex items-center justify-center border transition-all ${getGridBtnClass(idx)}`;
+                btn.innerText = idx + 1;
+                btn.onclick = () => loadQuestion(idx);
+                grid.appendChild(btn);
+            });
+
+            updateProgressText();
+        }
+
+        function getGridBtnClass(idx) {
+            if (idx === currentQuestionIndex) {
+                return 'ring-2 ring-blue-500 border-blue-600 text-blue-600 bg-blue-50';
+            }
+            if (userAnswers[idx] !== undefined) {
+                if (feedbackMode === 'instant') {
+                    const isCorrect = userAnswers[idx] === currentQuestions[idx].correct;
+                    return isCorrect ? 'bg-emerald-500 text-white border-emerald-500' : 'bg-rose-500 text-white border-rose-500';
+                }
+                return 'bg-blue-600 text-white border-blue-600';
+            }
+            return 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100';
+        }
+
+        function updateProgressText() {
+            const answered = Object.keys(userAnswers).length;
+            document.getElementById('progress-text').innerText = `${answered}/${currentQuestions.length}`;
+            document.getElementById('answered-count').innerText = `${answered}/${currentQuestions.length} đã chọn`;
+        }
+
+        function loadQuestion(index) {
+            currentQuestionIndex = index;
+            const item = currentQuestions[index];
+
+            // Render details
+            document.getElementById('question-chapter').innerText = item.chapter;
+            document.getElementById('question-number-badge').innerText = `Câu ${index + 1} / ${currentQuestions.length}`;
+            document.getElementById('question-text').innerText = item.q;
+
+            // Render Options
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+
+            const letters = ['A', 'B', 'C', 'D'];
+            const hasAnswered = userAnswers[index] !== undefined;
+            const selectedOpt = userAnswers[index];
+
+            item.options.forEach((optText, optIdx) => {
+                const optBtn = document.createElement('button');
+                optBtn.className = `w-full text-left p-4 rounded-xl border flex items-start space-x-3 transition-all text-sm md:text-base ${getOptionClass(index, optIdx)}`;
+                
+                if (!hasAnswered || feedbackMode === 'submit') {
+                    optBtn.onclick = () => selectAnswer(index, optIdx);
+                } else {
+                    optBtn.disabled = true;
+                }
+
+                optBtn.innerHTML = `
+                    <span class="font-bold border px-2 py-0.5 rounded text-xs ${getLetterBadgeClass(index, optIdx)}">${letters[optIdx]}</span>
+                    <span class="flex-grow">${optText}</span>
+                    ${getOptionIcon(index, optIdx)}
+                `;
+                optionsContainer.appendChild(optBtn);
+            });
+
+            // Rationale box (Instant mode)
+            const rationaleBox = document.getElementById('rationale-box');
+            if (feedbackMode === 'instant' && hasAnswered) {
+                const isCorrect = selectedOpt === item.correct;
+                rationaleBox.classList.remove('hidden', 'bg-emerald-50', 'border-emerald-200', 'text-emerald-800', 'bg-rose-50', 'border-rose-200', 'text-rose-800');
+                if (isCorrect) {
+                    rationaleBox.classList.add('bg-emerald-50', 'border-emerald-200', 'text-emerald-800');
+                    rationaleBox.innerHTML = `<strong><i class="fa-solid fa-circle-check mr-1"></i> Chính xác!</strong> Đáp án đúng là <b>${letters[item.correct]}</b>.`;
+                } else {
+                    rationaleBox.classList.add('bg-rose-50', 'border-rose-200', 'text-rose-800');
+                    rationaleBox.innerHTML = `<strong><i class="fa-solid fa-circle-xmark mr-1"></i> Chưa chính xác!</strong> Đáp án đúng phải là <b>${letters[item.correct]}: ${item.options[item.correct]}</b>.`;
+                }
+            } else {
+                rationaleBox.classList.add('hidden');
+            }
+
+            // Update Navigation buttons
+            document.getElementById('btn-prev').disabled = index === 0;
+            if (index === currentQuestions.length - 1) {
+                document.getElementById('btn-next').classList.add('hidden');
+                document.getElementById('btn-finish').classList.remove('hidden');
+            } else {
+                document.getElementById('btn-next').classList.remove('hidden');
+                document.getElementById('btn-finish').classList.add('hidden');
+            }
+
+            // Refresh Question Grid active state
+            renderQuestionGrid();
+        }
+
+        function getOptionClass(qIdx, optIdx) {
+            const hasAnswered = userAnswers[qIdx] !== undefined;
+            const selectedOpt = userAnswers[qIdx];
+            const correctOpt = currentQuestions[qIdx].correct;
+
+            if (feedbackMode === 'instant' && hasAnswered) {
+                if (optIdx === correctOpt) {
+                    return 'bg-emerald-50 border-emerald-500 text-emerald-900 font-medium';
+                }
+                if (optIdx === selectedOpt && selectedOpt !== correctOpt) {
+                    return 'bg-rose-50 border-rose-500 text-rose-900';
+                }
+                return 'bg-white border-slate-200 opacity-60';
+            }
+
+            if (selectedOpt === optIdx) {
+                return 'bg-blue-50 border-blue-600 text-blue-900 font-medium shadow-sm';
+            }
+
+            return 'bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-800';
+        }
+
+        function getLetterBadgeClass(qIdx, optIdx) {
+            const hasAnswered = userAnswers[qIdx] !== undefined;
+            const selectedOpt = userAnswers[qIdx];
+            const correctOpt = currentQuestions[qIdx].correct;
+
+            if (feedbackMode === 'instant' && hasAnswered) {
+                if (optIdx === correctOpt) return 'bg-emerald-600 text-white border-emerald-600';
+                if (optIdx === selectedOpt) return 'bg-rose-600 text-white border-rose-600';
+            }
+            if (selectedOpt === optIdx) return 'bg-blue-600 text-white border-blue-600';
+            return 'bg-slate-100 text-slate-600 border-slate-200';
+        }
+
+        function getOptionIcon(qIdx, optIdx) {
+            if (feedbackMode !== 'instant' || userAnswers[qIdx] === undefined) return '';
+            const correctOpt = currentQuestions[qIdx].correct;
+            const selectedOpt = userAnswers[qIdx];
+
+            if (optIdx === correctOpt) return '<i class="fa-solid fa-circle-check text-emerald-600 text-lg ml-2"></i>';
+            if (optIdx === selectedOpt) return '<i class="fa-solid fa-circle-xmark text-rose-600 text-lg ml-2"></i>';
+            return '';
+        }
+
+        function selectAnswer(qIdx, optIdx) {
+            userAnswers[qIdx] = optIdx;
+            loadQuestion(qIdx);
+        }
+
+        function navigateQuestion(direction) {
+            const nextIdx = currentQuestionIndex + direction;
+            if (nextIdx >= 0 && nextIdx < currentQuestions.length) {
+                loadQuestion(nextIdx);
+            }
+        }
+
+        function confirmSubmitQuiz() {
+            const total = currentQuestions.length;
+            const answered = Object.keys(userAnswers).length;
+
+            if (answered < total) {
+                if (!confirm(`Bạn mới làm ${answered}/${total} câu hỏi. Bạn có chắc chắn muốn nộp bài không?`)) {
+                    return;
+                }
+            }
+            submitQuiz();
+        }
+
+        function submitQuiz() {
+            clearInterval(timerInterval);
+
+            // Compute score
+            let correctCount = 0;
+            currentQuestions.forEach((q, idx) => {
+                if (userAnswers[idx] === q.correct) {
+                    correctCount++;
+                }
+            });
+
+            const score10 = ((correctCount / currentQuestions.length) * 10).toFixed(1);
+
+            // Render stats
+            document.getElementById('stat-score').innerText = `${score10}/10`;
+            document.getElementById('stat-correct').innerText = correctCount;
+            document.getElementById('stat-wrong').innerText = currentQuestions.length - correctCount;
+
+            const mins = Math.floor(secondsElapsed / 60).toString().padStart(2, '0');
+            const secs = (secondsElapsed % 60).toString().padStart(2, '0');
+            document.getElementById('stat-time').innerText = `${mins}:${secs}`;
+
+            // Pass/Fail Visuals
+            const iconBg = document.getElementById('result-icon-bg');
+            const icon = document.getElementById('result-icon');
+            const title = document.getElementById('result-title');
+
+            if (score10 >= 5.0) {
+                iconBg.className = 'inline-flex p-4 rounded-full bg-emerald-100 text-emerald-600 mb-3';
+                icon.className = 'fa-solid fa-trophy text-4xl';
+                title.innerText = 'Chúc Mừng! Bạn Đã Đạt Chuẩn';
+            } else {
+                iconBg.className = 'inline-flex p-4 rounded-full bg-rose-100 text-rose-600 mb-3';
+                icon.className = 'fa-solid fa-triangle-exclamation text-4xl';
+                title.innerText = 'Chưa Đạt! Cần Ôn Tập Thêm';
+            }
+
+            // Review List
+            renderReviewList();
+
+            // Switch views
+            viewQuiz.classList.add('hidden');
+            quizStats.classList.add('hidden');
+            viewResult.classList.remove('hidden');
+        }
+
+        function renderReviewList() {
+            const list = document.getElementById('review-list');
+            list.innerHTML = '';
+            const letters = ['A', 'B', 'C', 'D'];
+
+            currentQuestions.forEach((q, idx) => {
+                const userAns = userAnswers[idx];
+                const isCorrect = userAns === q.correct;
+
+                const card = document.createElement('div');
+                card.className = `p-4 rounded-xl border ${isCorrect ? 'bg-emerald-50/40 border-emerald-200' : 'bg-rose-50/40 border-rose-200'}`;
+
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-xs font-semibold px-2 py-0.5 rounded ${isCorrect ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">
+                            Câu ${idx + 1} - ${isCorrect ? 'Đúng' : 'Sai'}
+                        </span>
+                        <span class="text-xs text-slate-400">${q.chapter}</span>
+                    </div>
+                    <p class="font-medium text-slate-800 text-sm mb-3">${q.q}</p>
+                    <div class="text-xs space-y-1">
+                        <div class="${userAns === q.correct ? 'text-emerald-700 font-semibold' : 'text-rose-700'}">
+                            Lựa chọn của bạn: ${userAns !== undefined ? `${letters[userAns]}.${q.options[userAns]}` : 'Chưa trả lời'}
+                        </div>
+                        ${!isCorrect ? `<div class="text-emerald-700 font-semibold">Đáp án đúng: ${letters[q.correct]}.${q.options[q.correct]}</div>` : ''}
+                    </div>
+                `;
+                list.appendChild(card);
+            });
+        }
+
+        function restartQuiz() {
+            startQuiz();
+        }
+
+        function showStartScreen() {
+            clearInterval(timerInterval);
+            viewQuiz.classList.add('hidden');
+            viewResult.classList.add('hidden');
+            quizStats.classList.add('hidden');
+            viewStart.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
+```eof
+
+### Tóm tắt giao diện đã khởi tạo:
+- **Tập dữ liệu**: Đã tích hợp đầy đủ 120 câu hỏi bao phủ 8 chương từ file PDF `CÂU HỎI ÔN TẬP.pdf`.
+- **Chế độ 40 câu**: Mỗi lượt ôn tập sẽ tự động xáo trộn và rút ngẫu nhiên đúng **40 câu hỏi** để người dùng làm bài.
+- **Tính năng chấm điểm**: Cung cấp tùy chọn xem đáp án đúng/sai tức thì từng câu hoặc đợi nộp bài tổng kết.
